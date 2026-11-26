@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
 import "./App.css";
 
 const initialHabits = [
@@ -95,6 +96,26 @@ const financeFieldStyle = {
 
 function App() {
   const today = getDateKey();
+
+  // SIGN OUT
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    const confirmed = window.confirm(
+      "Are you sure you want to sign out of AMIDA CARE?"
+    );
+
+    if (!confirmed) return;
+
+    setSigningOut(true);
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      alert("Unable to sign out: " + error.message);
+      setSigningOut(false);
+    }
+  }
 
   // HABITS
   const [habits, setHabits] = useState(() => {
@@ -532,9 +553,40 @@ function App() {
       </aside>
 
       <main className="main">
-        <header>
+        <header style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}>
           <span>{date}</span>
-          <span className="profile">♡ Your growth space</span>
+
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+            flexWrap: "wrap",
+          }}>
+            <span className="profile">♡ Your growth space</span>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={signingOut}
+              style={{
+                padding: "9px 15px",
+                borderRadius: "10px",
+                border: "1px solid #eadce4",
+                background: "#fff9fc",
+                color: "#75445e",
+                cursor: signingOut ? "wait" : "pointer",
+                fontWeight: "600",
+              }}
+            >
+              {signingOut ? "Signing out..." : "Sign out"}
+            </button>
+          </div>
         </header>
 
         {/* TODAY */}
@@ -954,7 +1006,7 @@ function App() {
                 </div>
 
                 <label style={financeLabelStyle}>
-                  How much? 
+                  How much?
                 </label>
 
                 <div style={{
